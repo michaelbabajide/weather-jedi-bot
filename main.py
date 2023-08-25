@@ -1,3 +1,7 @@
+'''
+bot interacts with user to provide weather information based on provided location.
+makes use of OpenWeatherMap API to fetch weather data and Geopy library to geocode location input from user
+'''
 import os
 import telebot
 import requests
@@ -14,18 +18,30 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    '''
+    returns a welcome message when the '/start' command is sent by the user
+    '''
     bot.send_message(message.chat.id, 'Hello Padwan, what do you want to search for?')
 
 
 @bot.message_handler(commands=['weather'])
 def send_weather(message):
-    location = 'Enter a Location'
+    '''
+    returns a prompt asking the user to enter a location when the '/weather' command is sent.
+    registers the next step handler to wait for the user's input and calls the 'fetch_weather' function
+    '''
+    location = 'Enter a Location: '
     sent_message = bot.send_message(message.chat.id, location, parse_mode='Markdown')
     bot.register_next_step_handler(sent_message, fetch_weather)
     return location
 
 
 def location_handler(message):
+    '''
+    returns the latitude and longitude coordinated from user's message (location) using the Nominatim geocoder.
+    if location is found - returns the rounded latitude and longitude
+    else - returns Location not found
+    '''
     location = message.text
     # Create a geocoder instance
     geolocator = Nominatim(user_agent="my_app")
@@ -42,6 +58,11 @@ def location_handler(message):
 
 
 def get_weather(latitude,longitude):
+    '''
+    arguments - latitude, longitude
+    takes in arguments as inputs and constructs URL to make API call to OpenWeatherMap API
+    returns a response JSON after fetching weather data for the specified latitude and longitude
+    '''
     url = 'https://api.openweathermap.org/data/2.5/forecast?lat={}&lon={}&appid={}'.format(latitude, longitude, WEATHER_TOKEN)
     response = requests.get(url)
     # print(response.json())
@@ -49,6 +70,11 @@ def get_weather(latitude,longitude):
 
     
 def fetch_weather(message): 
+    '''
+    called when the user provides location in response to the '/weather' command.
+    uses the 'location_handler' function to get latitude & longitude of the provided location and 'get_weather' function to fetch the weather data
+    extracts weather description from API response and sends to user as message.
+    '''
     latitude, longitude = location_handler(message)
     weather = get_weather(latitude,longitude)
     data = weather['list']
@@ -63,6 +89,9 @@ def fetch_weather(message):
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
+    '''
+    echoes back any other messages bot receives from user
+    '''
     bot.reply_to(message, message.text)
 
 bot.infinity_polling()

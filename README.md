@@ -1,8 +1,8 @@
-# Weather Bot (Work in Progress)
+# Weather Jedi (Work in Progress)
 
 ## Introduction
 
-Weather Bot is a simple Telegram bot that provides weather forecasts for user-specified locations. The bot allows users to input a location, and it returns the weather forecast for that location using the OpenWeatherMap API. This project is currently a work in progress, and I am continuously enhancing its functionality and features.
+Weather Jedi is a simple Telegram bot that provides weather forecasts for user-specified locations. The bot allows users to input a location, and it returns the weather forecast for that location using the OpenWeatherMap API. This project is currently a work in progress, and I am continuously enhancing its functionality and features.
 
 ## Requirements
 
