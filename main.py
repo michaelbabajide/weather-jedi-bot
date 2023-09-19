@@ -5,6 +5,7 @@ makes use of OpenWeatherMap API to fetch weather data and Geopy library to geoco
 import os
 import telebot
 import requests
+import logging, logging.config
 from dotenv import load_dotenv
 from geopy.geocoders import Nominatim
 
@@ -15,6 +16,39 @@ WEATHER_TOKEN = os.environ.get('WEATHER_TOKEN')
 POLLING_TIMEOUT = None
 bot = telebot.TeleBot(BOT_TOKEN)
 
+
+config = {
+    'disable_existing_loggers': False,
+    'version': 1,
+    'formatters': {
+        'short': {
+            'format': '%(asctime)s %(levelname)s %(message)s',
+        },
+        'long': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'formatter': 'short',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'plugins': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        }
+    },
+}
+logging.config.dictConfig(config)
+logger = logging.getLogger(__name__)
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -51,10 +85,10 @@ def location_handler(message):
         location_data = geolocator.geocode(location)
         latitude = round(location_data.latitude,2)
         longitude = round(location_data.longitude,2)
-        # print(latitude, longitude)
+        logger.info("Latitude '%s' and Longitude '%s' found for location '%s'", latitude, longitude, location)
         return latitude, longitude
     except AttributeError:
-        print("Location not found.")
+        logger.exception('Location not found', exc_info=True)
 
 
 def get_weather(latitude,longitude):
